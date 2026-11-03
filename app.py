@@ -28,10 +28,23 @@ valid_only = st.sidebar.checkbox("Exclude invalid / unverified lead times", valu
 st.sidebar.divider()
 st.sidebar.subheader("Research Documentation")
 try:
-    with open("reports/research_paper.html", "r", encoding="utf-8") as _f:
-        _paper_html = _f.read()
+    with open("reports/research_paper.pdf", "rb") as _f_pdf:
+        _pdf_bytes = _f_pdf.read()
     st.sidebar.download_button(
-        "📄 Download Research Paper (HTML)",
+        "📥 Download Research Paper (PDF)",
+        data=_pdf_bytes,
+        file_name="NassauLogix_Research_Paper.pdf",
+        mime="application/pdf",
+        use_container_width=True
+    )
+except Exception:
+    pass
+
+try:
+    with open("reports/research_paper.html", "r", encoding="utf-8") as _f_html:
+        _paper_html = _f_html.read()
+    st.sidebar.download_button(
+        "🌐 Download Research Paper (HTML)",
         data=_paper_html,
         file_name="NassauLogix_Research_Paper.html",
         mime="text/html",
