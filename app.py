@@ -25,6 +25,21 @@ modes = st.sidebar.multiselect("Ship mode", sorted(df["Ship Mode"].dropna().uniq
 threshold = st.sidebar.slider("Delay threshold (days)", 1, 30, 7)
 valid_only = st.sidebar.checkbox("Exclude invalid / unverified lead times", value=False)
 
+st.sidebar.divider()
+st.sidebar.subheader("Research Documentation")
+try:
+    with open("reports/research_paper.html", "r", encoding="utf-8") as _f:
+        _paper_html = _f.read()
+    st.sidebar.download_button(
+        "📄 Download Research Paper (HTML)",
+        data=_paper_html,
+        file_name="NassauLogix_Research_Paper.html",
+        mime="text/html",
+        use_container_width=True
+    )
+except Exception:
+    pass
+
 if isinstance(date_range, tuple) and len(date_range) == 2:
     start, end = pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1]) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
     filtered = df[df["Order Date"].between(start, end)]

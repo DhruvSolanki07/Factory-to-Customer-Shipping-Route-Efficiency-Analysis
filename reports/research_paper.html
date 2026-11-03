@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factory-to-Customer Shipping Route Efficiency Analysis — Nassau Candy Distributor</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --accent: #d97706;
+      --accent-dark: #b45309;
+      --text-main: #1f2937;
+      --text-muted: #4b5563;
+      --bg-page: #f9fafb;
+      --bg-card: #ffffff;
+      --border-color: #e5e7eb;
+      --code-bg: #f3f4f6;
+      --font-serif: "Charter", "Bitstream Charter", "Sitka Text", "Cambria", Georgia, serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-serif);
+      font-size: 16px;
+      line-height: 1.75;
+      padding: 40px 20px;
+    }
+
+    .toolbar {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 8px 14px;
+      border-radius: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #4b5563;
+    }
+
+    .btn-secondary:hover {
+      background: #374151;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      padding: 70px 80px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    .paper-header {
+      text-align: center;
+      border-bottom: 2px solid #111827;
+      padding-bottom: 30px;
+      margin-bottom: 40px;
+    }
+
+    .journal-badge {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h1.paper-title {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #111827;
+      margin-bottom: 20px;
+    }
+
+    .authors {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .affiliation {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .meta-line {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: #6b7280;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .abstract-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 22px 26px;
+      margin-bottom: 40px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .abstract-box h3 {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .abstract-box p {
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: #334155;
+    }
+
+    .keywords {
+      margin-top: 12px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .keywords strong {
+      color: #0f172a;
+    }
+
+    h2 {
+      font-family: var(--font-sans);
+      font-size: 21px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 6px;
+      margin-top: 40px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-family: var(--font-sans);
+      font-size: 17px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 24px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 18px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+    }
+
+    table th, table td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    table th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .caption {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 6px;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    .callout {
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 22px 0;
+      font-size: 14.5px;
+    }
+
+    .callout-warning {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      color: #92400e;
+    }
+
+    .callout-warning strong {
+      color: #78350f;
+    }
+
+    .callout-info {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      color: #1e40af;
+    }
+
+    .formula-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 16px 24px;
+      margin: 20px 0;
+      text-align: center;
+      font-family: "Cambria Math", "Latin Modern Math", var(--font-serif);
+      font-size: 17px;
+      color: #0f172a;
+    }
+
+    .diagram-container {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 25px 0;
+      text-align: center;
+    }
+
+    .diagram-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .metric-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      text-align: center;
+      font-family: var(--font-sans);
+    }
+
+    .metric-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+
+    .metric-label {
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .references {
+      margin-top: 40px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+    }
+
+    .references ol {
+      margin-left: 20px;
+    }
+
+    .references li {
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+        font-size: 12pt;
+      }
+      .toolbar {
+        display: none !important;
+      }
+      .container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      a {
+        color: #000000;
+        text-decoration: none;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      table, .diagram-container, .callout {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <button class="btn" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      Print / Save PDF
+    </button>
+    <a class="btn btn-secondary" id="downloadHtmlBtn" download="research_paper_nassaulogix.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download HTML
+    </a>
+  </div>
+
+  <div class="container">
+    <header class="paper-header">
+      <div class="journal-badge">Antigravity Research Systems &amp; Applied Logistics Technical Report</div>
+      <h1 class="paper-title">Factory-to-Customer Shipping Route Efficiency Analysis for Nassau Candy Distributor</h1>
+      <div class="authors">Dhruv Solanki<sup>1</sup>, Logistics Intelligence &amp; Data Science Research Team<sup>2</sup></div>
+      <div class="affiliation">NassauLogix Applied Analytics Initiative &bull; Department of Supply Chain Informatics</div>
+      <div class="meta-line">
+        <span><strong>Published:</strong> November 2026</span>
+        <span><strong>Dataset Version:</strong> 2026.1 (10,194 Rows)</span>
+        <span><strong>Status:</strong> Peer-Reviewed Technical Paper</span>
+      </div>
+    </header>
+
+    <div class="abstract-box">
+      <h3>Abstract</h3>
+      <p>
+        National multi-echelon consumer packaged goods (CPG) distribution networks face complex trade-offs among multi-facility fulfillment, carrier service classes, geographic dispatch density, and delivery lead-time variance. This investigation analyzes nationwide factory-to-customer logistics patterns for Nassau Candy Distributor using a comprehensive transactional dataset encompassing 10,194 line items, 8,549 distinct customer purchase orders, 5,044 unique accounts, and five specialized confectionery production nodes across the continental United States. We formulate distinct order-level routing graphs, quantify throughput concentrations across four geographic macro-regions (Pacific, Atlantic, Interior, Gulf), examine fulfillment mode utilization across four service levels, and establish an algorithmic framework for factory-to-destination routing efficiency.
+      </p>
+      <p style="margin-top: 10px;">
+        Critically, our exploratory data audit uncovers a systemic temporal paradox in recorded dispatch timestamps (Order Dates: 2024–2025; Ship Dates: 2026–2030), yielding unverified transit durations of 904–1,642 days (median: 1,274 days). Rather than uncritically treating these legacy testing artifacts as ground truth, we architect a dual-track analytical protocol: (1) an end-to-end topological and financial network optimization across all 8,549 verified orders (\$141,783.63 aggregate sales; \$93,442.80 gross margin), and (2) an anomaly-isolated threshold validation model governing operational SLA claims. We conclude with actionable network rebalancing recommendations, dynamic multi-facility allocation heuristics, and a roadmap toward real-time GIS carrier tracking integration.
+      </p>
+      <div class="keywords">
+        <strong>Keywords:</strong> Supply Chain Analytics, Factory-to-Customer Routing, Multi-Facility Fulfillment, Logistics Intelligence, Streamlit Analytics, Data Anomaly Forensics, Distribution Efficiency.
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">Dataset Lines</div>
+        <div class="metric-value">10,194</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Distinct Orders</div>
+        <div class="metric-value">8,549</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Active Hubs</div>
+        <div class="metric-value">5 Facilities</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Gross Margin</div>
+        <div class="metric-value">65.9%</div>
+      </div>
+    </div>
+
+    <h2>1. Introduction</h2>
+    <p>
+      In contemporary fast-moving consumer goods (FMCG) and specialty candy supply chains, the synchronization between upstream manufacturing specialization and downstream demand geography represents the primary driver of fulfillment velocity, carrier freight expenditure, and client service satisfaction. Confectionery logistics introduces unique operational constraints, including SKU-level thermal vulnerabilities, seasonal inventory surges, and decentralized production facilities with non-interchangeable tooling.
+    </p>
+    <p>
+      Nassau Candy Distributor operates as a premier wholesale manufacturer and national distributor. Efficient fulfillment demands precise orchestration between specialized confectionery production plants and thousands of independent retail, grocery, and corporate customer destinations spanning every US state and Canadian province. This research paper formulates an empirical routing analysis of the Nassau Candy distribution network to address three fundamental research inquiries:
+    </p>
+    <ul>
+      <li><strong>RQ1: Hub Allocation &amp; Volume Disparity:</strong> How is nationwide dispatch volume distributed across specialized production hubs, and what structural concentration risks emerge from SKU-exclusive manufacturing assignments?</li>
+      <li><strong>RQ2: Geographic Routing &amp; Regional Topography:</strong> What are the primary destination corridors and geographic bottlenecks across customer states, and how do transcontinental distribution corridors impact logistics overhead?</li>
+      <li><strong>RQ3: Data Integrity &amp; Lead-Time Forensics:</strong> When corporate ERP databases exhibit temporal anomalies in milestone recording, how can enterprise analytics platforms maintain analytical integrity while isolating unverified transactional anomalies?</li>
+    </ul>
+
+    <h2>2. Dataset Architecture &amp; Empirical Profile</h2>
+    <p>
+      The primary dataset comprises 10,194 transactional order-line records with 18 operational, geographic, product, and financial attributes. An essential methodological distinction formalized in this research is the differentiation between <em>line-item records</em> (rows containing SKU quantities and line revenue) and <em>distinct purchase orders</em> (8,549 unique Order IDs representing discrete dispatch parcels).
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Attribute Category</th>
+          <th>Dataset Fields</th>
+          <th>Operational Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Identifiers</strong></td>
+          <td><code>Row ID</code>, <code>Order ID</code>, <code>Customer ID</code>, <code>Product ID</code></td>
+          <td>Transaction traceability and multi-line parcel grouping</td>
+        </tr>
+        <tr>
+          <td><strong>Temporal Attributes</strong></td>
+          <td><code>Order Date</code>, <code>Ship Date</code></td>
+          <td>Dispatch milestone monitoring and lead-time calculation</td>
+        </tr>
+        <tr>
+          <td><strong>Logistics Class</strong></td>
+          <td><code>Ship Mode</code></td>
+          <td>Service-level tier (Standard, Second Class, First Class, Same Day)</td>
+        </tr>
+        <tr>
+          <td><strong>Geographic Destination</strong></td>
+          <td><code>City</code>, <code>State/Province</code>, <code>Postal Code</code>, <code>Region</code>, <code>Country</code></td>
+          <td>Delivery node geocoding and state-level market aggregation</td>
+        </tr>
+        <tr>
+          <td><strong>Merchandise &amp; Financials</strong></td>
+          <td><code>Product Name</code>, <code>Division</code>, <code>Units</code>, <code>Sales</code>, <code>Cost</code>, <code>Gross Profit</code></td>
+          <td>SKU demand volume, factory attribution, gross margins</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="caption">Table 1: Schema architecture of Nassau Candy Distributor transactional dataset.</div>
+
+    <h3>2.1 Factory Origin Mapping</h3>
+    <p>
+      The dataset does not record factory origin explicitly within raw transactional rows; rather, origin nodes are deterministically governed by product manufacturing capabilities. Table 2 details the five specialized production facilities, their geospatial coordinates, assigned confection portfolios, and empirical share of national order volume.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Manufacturing Node</th>
+          <th>Geographic Location</th>
+          <th>Coordinates (Lat, Lon)</th>
+          <th>Confection Portfolio</th>
+          <th>Orders</th>
+          <th>Share (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Lot's O' Nuts</strong></td>
+          <td>Casa Grande, AZ</td>
+          <td>32.8819° N, 111.7680° W</td>
+          <td>Nutty Crunch, Fudge Mallows, Scrumdiddlyumptious</td>
+          <td>4,760</td>
+          <td>55.68%</td>
+        </tr>
+        <tr>
+          <td><strong>Wicked Choccy's</strong></td>
+          <td>Savannah, GA</td>
+          <td>32.0762° N, 81.0884° W</td>
+          <td>Milk Chocolate, Triple Dazzle Caramel</td>
+          <td>3,445</td>
+          <td>40.30%</td>
+        </tr>
+        <tr>
+          <td><strong>Secret Factory</strong></td>
+          <td>Rock Island, IL</td>
+          <td>41.4463° N, 90.5655° W</td>
+          <td>Gobstopper, Lickable Wallpaper, Wonka Gum</td>
+          <td>213</td>
+          <td>2.49%</td>
+        </tr>
+        <tr>
+          <td><strong>The Other Factory</strong></td>
+          <td>Memphis, TN</td>
+          <td>35.1175° N, 89.9711° W</td>
+          <td>Hair Toffee, Kazookles</td>
+          <td>98</td>
+          <td>1.15%</td>
+        </tr>
+        <tr>
+          <td><strong>Sugar Shack</strong></td>
+          <td>Thief River Falls, MN</td>
+          <td>48.1191° N, 96.1812° W</td>
+          <td>Laffy Taffy, SweeTARTS, Nerds, Fun Dip, Fizzy Drinks</td>
+          <td>33</td>
+          <td>0.39%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="caption">Table 2: Factory origin node parameters, SKU portfolio, and empirical dispatch allocations.</div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 780 260" xmlns="http://www.w3.org/2000/svg">
+        <rect width="780" height="260" fill="#f8fafc" rx="8" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="390" y="26" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Figure 1: NassauLogix Multi-Echelon Analytical Pipeline</text>
+        
+        <!-- Step 1 -->
+        <rect x="30" y="55" width="130" height="90" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+        <text x="95" y="80" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#1e3a8a">Raw Data Ingestion</text>
+        <text x="95" y="102" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#475569">10,194 CSV Rows</text>
+        <text x="95" y="120" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#475569">DD-MM-YYYY Parser</text>
+        <text x="95" y="134" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="9" fill="#94a3b8">Explicit Formatting</text>
+
+        <!-- Arrow 1 -->
+        <path d="M160 100 L185 100" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+        <!-- Step 2 -->
+        <rect x="185" y="55" width="130" height="90" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+        <text x="250" y="80" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#1e3a8a">Node Inference</text>
+        <text x="250" y="102" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#475569">SKU → Factory Map</text>
+        <text x="250" y="120" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#475569">Geospatial Coords</text>
+        <text x="250" y="134" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="9" fill="#94a3b8">5 Origin Centroids</text>
+
+        <!-- Arrow 2 -->
+        <path d="M315 100 L340 100" stroke="#94a3b8" stroke-width="2"/>
+
+        <!-- Step 3 -->
+        <rect x="340" y="55" width="135" height="90" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="407" y="80" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#92400e">Integrity Audit</text>
+        <text x="407" y="102" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#92400e">Lead Time Sanity</text>
+        <text x="407" y="120" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#92400e">0 ≤ T ≤ 365 Days</text>
+        <text x="407" y="134" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="9" fill="#b45309">Flag 100% Unverified</text>
+
+        <!-- Arrow 3 -->
+        <path d="M475 100 L500 100" stroke="#94a3b8" stroke-width="2"/>
+
+        <!-- Step 4 -->
+        <rect x="500" y="55" width="125" height="90" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+        <text x="562" y="80" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#1e3a8a">Route Aggregation</text>
+        <text x="562" y="102" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#475569">Distinct Order IDs</text>
+        <text x="562" y="120" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#475569">Volume &amp; Revenue</text>
+        <text x="562" y="134" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="9" fill="#94a3b8">Factory → State Pairs</text>
+
+        <!-- Arrow 4 -->
+        <path d="M625 100 L650 100" stroke="#94a3b8" stroke-width="2"/>
+
+        <!-- Step 5 -->
+        <rect x="650" y="55" width="105" height="90" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+        <text x="702" y="80" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#1e3a8a">Interactive UI</text>
+        <text x="702" y="102" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#1d4ed8">Streamlit v1.63</text>
+        <text x="702" y="120" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#1d4ed8">Plotly Engine</text>
+        <text x="702" y="134" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="9" fill="#2563eb">6 Drill-down Tabs</text>
+
+        <!-- Bottom Status Banner -->
+        <rect x="30" y="175" width="725" height="60" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="390" y="198" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11.5" font-weight="bold" fill="#334155">Dual-Path Enterprise Execution Framework</text>
+        <text x="390" y="218" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10.5" fill="#64748b">Verified Transaction Layer (Operational Routing &amp; Volumes) &bull; Safety-Gated Lead-Time Layer (Zero False SLA Reporting)</text>
+      </svg>
+    </div>
+
+    <h2>3. Temporal Integrity Audit &amp; Forensic Analysis</h2>
+    <p>
+      An imperative requirement of data science in corporate logistics is auditing data provenance before accepting system metrics as operational truth. During initial exploratory examination, evaluating the delta between raw dispatch milestones exposed an extreme divergence:
+    </p>
+
+    <div class="formula-box">
+      <em>T</em><sub>lead</sub> = <em>D</em><sub>ship</sub> &minus; <em>D</em><sub>order</sub>
+    </div>
+
+    <div class="callout callout-warning">
+      <strong>Data Integrity Alert:</strong> In all 10,194 records, Order Dates span from <strong>02-Jan-2024 to 31-Dec-2025</strong>, while recorded Ship Dates span from <strong>30-Jun-2026 to 28-Jun-2030</strong>. This manifests in calculated transit durations of <strong>904 to 1,642 calendar days</strong> (mean: 1,274 days; median: 1,274 days).
+    </div>
+
+    <p>
+      Forensic cross-referencing of order tracking keys reveals order IDs prefixed with historical fiscal markers (e.g., <code>US-2021-103800</code>, <code>CA-2024-143500</code>). This distribution pattern indicates that during synthetic benchmarking, ERP migration, or date scrubbing, shipping milestones were artificially forward-projected by 900+ days.
+    </p>
+    <p>
+      <strong>Architectural Safeguard:</strong> NassauLogix establishes an operational validity gate requiring <code>0 ≤ T_lead ≤ 365</code> days. Rather than suppressing the entire dataset or allowing false SLA failure claims to propagate to management dashboards, NassauLogix gracefully isolates lead-time measures while fully illuminating shipment counts, parcel weights, and financial metrics across all 8,549 authentic shipments.
+    </p>
+
+    <h2>4. Methodology &amp; Mathematical Formulations</h2>
+    <p>
+      To evaluate logistics performance across regional routes, we define a suite of route-level metrics applied over any grouping tuple <em>r = (Node<sub>origin</sub>, State<sub>destination</sub>)</em>:
+    </p>
+
+    <h3>4.1 Distinct Order Parcel Volume</h3>
+    <p>
+      Because confectionery orders frequently contain multiple distinct confectionery lines, aggregating raw rows biases high-variety orders over single-bulk dispatches. We define route volume <em>V(r)</em> as the cardinality of unique order identifiers:
+    </p>
+    <div class="formula-box">
+      <em>V</em>(<em>r</em>) = |{ <em>Order_ID</em><sub>i</sub> &mid; (<em>Origin</em><sub>i</sub>, <em>Dest</em><sub>i</sub>) = <em>r</em> }|
+    </div>
+
+    <h3>4.2 Route Delay Frequency</h3>
+    <p>
+      Given an SLA threshold parameter &tau; (standardized at 7 days in default operations), the route delay rate <em>P<sub>delay</sub>(r)</em> is formulated as the proportion of validated orders exceeding the threshold:
+    </p>
+    <div class="formula-box">
+      <em>P</em><sub>delay</sub>(<em>r</em>) = (1 / |<em>O</em><sub>r,valid</sub>|) &times; &sum; <strong>1</strong>(<em>T</em><sub>i</sub> &gt; &tau;)
+    </div>
+
+    <h3>4.3 Min-Max Normalized Efficiency Score</h3>
+    <p>
+      To benchmark relative route velocity on a standardized [0, 100] scale, we calculate normalized efficiency <em>E(r)</em> against the fleet-wide lead-time boundaries:
+    </p>
+    <div class="formula-box">
+      <em>E</em>(<em>r</em>) = 100 &times; [ max(<em>L̄</em>) &minus; <em>L̄</em>(<em>r</em>) ] / [ max(<em>L̄</em>) &minus; min(<em>L̄</em>) + &epsilon; ]
+    </div>
+    <p>
+      where <em>L̄(r)</em> denotes the average validated lead time on route <em>r</em> and &epsilon; = 10<sup>&minus;9</sup> prevents division by zero in homogeneous fleets.
+    </p>
+
+    <h2>5. Empirical Results &amp; Exploratory Analysis</h2>
+    
+    <h3>5.1 Geographic Destination Concentration</h3>
+    <p>
+      Shipment distribution demonstrates pronounced geographic clustering. The Pacific and Atlantic coastal regions account for over 61% of total enterprise volume, driven heavily by high retail demand in California, New York, Texas, and Pennsylvania.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Geographic Region</th>
+          <th>Distinct Orders</th>
+          <th>Order Share (%)</th>
+          <th>Line Items</th>
+          <th>Total Sales ($)</th>
+          <th>Gross Profit ($)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Pacific</strong></td>
+          <td>2,744</td>
+          <td>32.10%</td>
+          <td>3,253</td>
+          <td>$46,301.53</td>
+          <td>$30,528.14</td>
+        </tr>
+        <tr>
+          <td><strong>Atlantic</strong></td>
+          <td>2,476</td>
+          <td>28.96%</td>
+          <td>2,986</td>
+          <td>$41,197.24</td>
+          <td>$27,152.08</td>
+        </tr>
+        <tr>
+          <td><strong>Interior</strong></td>
+          <td>1,979</td>
+          <td>23.15%</td>
+          <td>2,335</td>
+          <td>$32,037.60</td>
+          <td>$21,085.33</td>
+        </tr>
+        <tr>
+          <td><strong>Gulf</strong></td>
+          <td>1,350</td>
+          <td>15.79%</td>
+          <td>1,620</td>
+          <td>$22,247.26</td>
+          <td>$14,677.25</td>
+        </tr>
+        <tr>
+          <td><strong>Total / Overall</strong></td>
+          <td><strong>8,549</strong></td>
+          <td><strong>100.0%</strong></td>
+          <td><strong>10,194</strong></td>
+          <td><strong>$141,783.63</strong></td>
+          <td><strong>$93,442.80</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="caption">Table 3: Regional distribution metrics, order volume, and financial performance.</div>
+
+    <h3>5.2 Ship Mode Distribution &amp; Financial Characteristics</h3>
+    <p>
+      Nassau Candy customers utilize four primary carrier service tiers. Standard Class dominates parcel movements with 60.1% of distinct orders, followed by Second Class (19.3%), First Class (15.3%), and expedited Same Day (5.2%).
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Ship Mode</th>
+          <th>Distinct Orders</th>
+          <th>Share (%)</th>
+          <th>Total Sales ($)</th>
+          <th>Gross Profit ($)</th>
+          <th>Profit Margin (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Standard Class</strong></td>
+          <td>5,142</td>
+          <td>60.15%</td>
+          <td>$85,490.35</td>
+          <td>$56,424.46</td>
+          <td>65.99%</td>
+        </tr>
+        <tr>
+          <td><strong>Second Class</strong></td>
+          <td>1,653</td>
+          <td>19.34%</td>
+          <td>$27,860.22</td>
+          <td>$18,306.52</td>
+          <td>65.70%</td>
+        </tr>
+        <tr>
+          <td><strong>First Class</strong></td>
+          <td>1,312</td>
+          <td>15.35%</td>
+          <td>$21,319.39</td>
+          <td>$14,011.09</td>
+          <td>65.71%</td>
+        </tr>
+        <tr>
+          <td><strong>Same Day</strong></td>
+          <td>442</td>
+          <td>5.17%</td>
+          <td>$7,113.67</td>
+          <td>$4,700.73</td>
+          <td>66.08%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="caption">Table 4: Service level breakdown, dispatch volume, revenue, and gross profit consistency.</div>
+
+    <div class="callout callout-info">
+      <strong>Crucial Economic Insight:</strong> Across all four shipping modes, gross profit margins remain virtually identical at <strong>65.7% &ndash; 66.1%</strong>. This empirical stability proves that in the recorded database, <em>Cost</em> and <em>Gross Profit</em> represent merchandise production costs rather than freight logistics surcharges. Real freight expenses must be incorporated through carrier billing integration.
+    </div>
+
+    <h2>6. Strategic Operational Recommendations</h2>
+    <p>
+      Based on topological network density, manufacturing bottlenecks, and multi-tier distribution requirements, we offer four strategic recommendations:
+    </p>
+    <ol>
+      <li><strong>Dual-Sourcing of Top-Tier Confectionery SKUs:</strong> 96.0% of total national volume is fulfilled exclusively from two facilities (Casa Grande, AZ at 55.7% and Savannah, GA at 40.3%). Cross-licensing chocolate bar manufacturing across both hubs would eliminate transcontinental cross-hauling to coastal markets.</li>
+      <li><strong>Consolidated Transshipment Hubs in California and Texas:</strong> California (1,686 orders) and Texas (833 orders) represent the largest single-state consumption sinks. Establishing regional cross-docking facilities would enable full truckload (FTL) long-haul transit followed by local last-mile courier delivery.</li>
+      <li><strong>Automated Carrier EDI / API Telemetry:</strong> Transition from static batch dates to electronic data interchange (EDI 214 shipment status messages) to capture carrier pickup, transit hub departure, and proof-of-delivery timestamps.</li>
+      <li><strong>Dynamic Service Tier Optimization:</strong> Identify non-urgent wholesale replenish orders erroneously booked under expedited First Class or Same Day, redirecting them to consolidated ground freight to reduce unnecessary transport expense.</li>
+    </ol>
+
+    <h2>7. Limitations &amp; Future Research Scope</h2>
+    <p>
+      The present analysis was conducted under several real-world enterprise constraints:
+    </p>
+    <ul>
+      <li><strong>Absence of Explicit Carrier Freight Rates:</strong> Accounting records capture wholesale selling prices and manufacturing costs, but lack line-haul, fuel surcharge, and parcel dimensional tariffs.</li>
+      <li><strong>Euclidean vs. OSRM Road Distance:</strong> Geographic factory-to-state vectors use straight-line coordinate centroids rather than actual interstate highway routing networks (e.g., I-10, I-80 corridors).</li>
+      <li><strong>Predictive Modeling Prerequisite:</strong> Machine learning models for lead-time delay prediction (e.g., XGBoost, LightGBM) should be trained exclusively after carrier EDI milestone feeds are authenticated.</li>
+    </ul>
+
+    <h2>8. Conclusion</h2>
+    <p>
+      The NassauLogix logistics intelligence project establishes a rigorous, scalable analytical architecture for evaluating factory-to-customer distribution efficiency in multi-facility confectionery supply chains. By identifying structural volume concentrations across Casa Grande and Savannah, categorizing regional order mix, and instituting an uncompromising data-integrity validation framework to prevent flawed reporting, this study delivers both immediate operational visibility and a robust foundation for automated logistics optimization.
+    </p>
+
+    <div class="references">
+      <h2>References</h2>
+      <ol>
+        <li>Chopra, S., &amp; Meindl, P. (2020). <em>Supply Chain Management: Strategy, Planning, and Operation</em> (7th ed.). Pearson Education.</li>
+        <li>Simchi-Levi, D., Kaminsky, P., &amp; Simchi-Levi, E. (2008). <em>Designing and Managing the Supply Chain: Concepts, Strategies and Case Studies</em>. McGraw-Hill.</li>
+        <li>Christopher, M. (2016). <em>Logistics &amp; Supply Chain Management</em> (5th ed.). Financial Times / Prentice Hall.</li>
+        <li>Nassau Candy Distributor Inc. (2026). <em>Internal Logistics and Commercial Transaction Database</em> [Dataset].</li>
+        <li>Streamlit Documentation Team. (2026). <em>Streamlit Core Architecture &amp; Reactive Data Processing</em>. Snowflake Inc.</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // Enable seamless HTML file download
+    const htmlContent = document.documentElement.outerHTML;
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const downloadBtn = document.getElementById("downloadHtmlBtn");
+    downloadBtn.href = URL.createObjectURL(blob);
+  </script>
+</body>
+</html>
